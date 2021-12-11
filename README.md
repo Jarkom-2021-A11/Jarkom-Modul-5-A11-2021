@@ -210,6 +210,100 @@ auto eth0
 iface eth0 inet dhcp
 ```
 
-frederick.txt
+//Frederick
 
-tom.txt
+### Doriki
+
+1. Agar topologi yang kalian buat dapat mengakses keluar, kalian diminta untuk mengkonfigurasi Foosha menggunakan iptables, tetapi Luffy tidak ingin menggunakan MASQUERADE.
+
+    ```bash
+    iptables -t nat -A POSTROUTING -s 192.174.0.0/21 -o eth0 -j SNAT --to-source 192.168.122.8
+    ```
+
+2. Kalian diminta untuk mendrop semua akses HTTP dari luar Topologi kalian pada server yang merupakan DHCP Server dan DNS Server demi menjaga keamanan.
+
+    ### Doriki
+
+    ```bash
+    iptables -A FORWARD -d 192.174.7.128/29 -i eth0 -p tcp --dport 80 -j DROP
+    iptables -A FORWARD -d 192.174.7.128/29 -i eth0 -p tcp --dport 443 -j ACCEPT
+    ```
+
+    ### Jipangu
+
+    ```bash
+    iptables -A FORWARD -d 192.174.7.128/29 -i eth0 -p tcp --dport 80 -j DROP
+    iptables -A FORWARD -d 192.174.7.128/29 -i eth0 -p tcp --dport 443 -j ACCEPT
+    ```
+
+3. Karena kelompok kalian maksimal terdiri dari 3 orang. Luffy meminta kalian untuk membatasi DHCP dan DNS Server hanya boleh menerima maksimal 3 koneksi ICMP secara bersamaan menggunakan iptables, selebihnya didrop.
+
+    Memasukkan iptables berikut ke dalam DHCP Server (Jipangu) serta DNS Server (Doriki)
+
+    ```bash
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+    iptables -A INPUT -p icmp -m connlimit --connlimit-above 3 --connlimit-mask 0 -j DROP
+    ```
+
+    Kemudian kalian diminta untuk membatasi akses ke Doriki yang berasal dari subnet Blueno, Cipher, Elena dan Fukuro dengan beraturan sebagai berikut
+
+4. Akses dari subnet Blueno dan Cipher hanya diperbolehkan pada pukul 07.00 - 15.00 pada hari Senin sampai Kamis.
+    
+    ## Doriki
+    
+    ### From Cipher
+    
+    ```bash
+    iptables -A INPUT -s 192.174.0.0/22 -m time --timestart 07:00 --timestop 15:00 --weekdays Mon,Tue,Wed,Thu -j ACCEPT
+    iptables -A INPUT -s 192.174.0.0/22 -j REJECT
+    ```
+    
+    ### From Blueno
+    
+    ```bash
+    iptables -A INPUT -s 192.174.7.0/25 -m time --timestart 07:00 --timestop 15:00 --weekdays Mon,Tue,Wed,Thu -j ACCEPT
+    iptables -A INPUT -s 192.174.7.0/25 -j REJECT
+    ```
+
+5. Akses dari subnet Elena dan Fukuro hanya diperbolehkan pada pukul 15.01 hingga pukul 06.59 setiap harinya.
+    
+    Selain itu di reject
+    
+    ## Doriki
+    
+    ### From Elena
+    
+    ```bash
+    iptables -A INPUT -s 192.174.4.0/23 -m time --timestart 15:01 --timestop 06:59 -j ACCEPT
+    iptables -A INPUT -s 192.174.4.0/23 -j REJECT
+    ```
+    
+    ### From Fukurou
+    
+    ```bash
+    iptables -A INPUT -s 192.174.6.0/24 -m time --timestart 15:01 --timestop 06:59 -j ACCEPT
+    iptables -A INPUT -s 192.174.6.0/24 -j REJECT
+    ```
+
+6. Karena kita memiliki 2 Web Server, Luffy ingin Guanhao disetting sehingga setiap request dari client yang mengakses DNS Server akan didistribusikan secara bergantian pada Jorge dan Maingate
+    
+    Guanhao
+    
+    ```bash
+    iptables -A PREROUTING -t nat -p tcp -d 192.174.7.128/29 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination  192.174.7.138
+    iptables -A PREROUTING -t nat -p tcp -d 192.174.7.128/29 -j DNAT --to-destination 192.174.7.139
+    iptables -t nat -A POSTROUTING -p tcp -d 192.174.7.138 -j SNAT --to-source 192.174.7.128
+    iptables -t nat -A POSTROUTING -p tcp -d 192.174.7.139 -j SNAT --to-source 192.174.7.128
+    ```
+    
+    Menginstall Apache2 di Jorge dan Maingate
+    
+    index.html → Jorge
+    
+    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3ce13a74-1b1c-4c1e-838b-a90168591474/Untitled.png)
+    
+    index.html → Maingate
+    
+    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4dc413e5-095e-4982-a346-78f384ed3516/Untitled.png)
+    
+    Luffy berterima kasih pada kalian karena telah membantunya. Luffy juga mengingatkan agar semua aturan iptables harus disimpan pada sistem atau paling tidak kalian menyediakan script sebagai backup.
