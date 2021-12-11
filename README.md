@@ -423,10 +423,10 @@ OPTIONS=""
 
     index.html → Jorge
 
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3ce13a74-1b1c-4c1e-838b-a90168591474/Untitled.png)
+    ![jorge](img/jorge.jpeg)
 
     index.html → Maingate
 
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4dc413e5-095e-4982-a346-78f384ed3516/Untitled.png)
+    ![maingate](img/maingate.jpeg)
 
     Luffy berterima kasih pada kalian karena telah membantunya. Luffy juga mengingatkan agar semua aturan iptables harus disimpan pada sistem atau paling tidak kalian menyediakan script sebagai backup.
